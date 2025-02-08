@@ -17,11 +17,8 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
 
 #------------------------------------------------------------------------------
 # Library target
-include(CTest)
-if (PROJECT_IS_TOP_LEVEL AND BUILD_TESTING)
-  add_executable(tests
-    tests/example.cpp
-  )
-  target_link_libraries(tests PUBLIC ${PROJECT_NAME})
-endif()
+add_executable(example
+  example/main.cpp
+)
+target_link_libraries(example PUBLIC ${PROJECT_NAME})
 
