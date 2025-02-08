@@ -10,16 +10,9 @@ namespace {
         jtest::assert_eq(2 * 2, 4);
       }},
   };
-
 } // namespace
-
-template<>
-struct jtest::TestSuite<"my"> {};
 
 int main(int argc, const char* argv[]) {
   jtest::run_all_tests();
-
-  jtest::TestSuite<"asd"> suite;
-
   return 0;
 }
