@@ -7,6 +7,9 @@ namespace {
         jtest::assert_eq(2 * 2, 5);
       }},
       jtest::Case<"test2">{[] {
+        jtest::assert_ne(2 * 2, 4);
+      }},
+      jtest::Case<"test3">{[] {
         jtest::assert_eq(2 * 2, 4);
       }},
   };
