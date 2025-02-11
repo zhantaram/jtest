@@ -34,7 +34,8 @@ namespace jtest {
         std::println("---------------------------------------------------------------");
         return true;
       } catch (const AssertionFailure& error) {
-        std::println("Test \"{}\" failed:\n\t{}", test_name, error.message);
+        std::println("Test \"{}\" failed:\n{}:{}\n\t{}", test_name, error.location.file_name(),
+                     error.location.line(), error.message);
         std::println("---------------------------------------------------------------");
         return false;
       }
