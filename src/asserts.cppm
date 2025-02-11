@@ -5,6 +5,19 @@ import std;
 
 namespace jtest {
 
+  template<typename... Ts>
+  std::string format(std::string_view fmt, Ts&&... args) {
+    auto to_format_arg = []<typename T>(T& arg) -> decltype(auto) {
+      if constexpr (std::formattable<T, char>) {
+        return arg;
+      } else {
+        return "#unformattable";
+      }
+    };
+
+    return std::vformat(fmt, std::make_format_args(to_format_arg(args)...));
+  }
+
   struct AssertionFailure {
     std::string message;
     std::source_location location;
@@ -14,17 +27,10 @@ namespace jtest {
   void assert_eq(const T& actual, const U& expected,
                  std::source_location loc = std::source_location::current()) {
     if (!std::equal_to<>{}(actual, expected)) {
-      if constexpr (std::formattable<T, char> && std::formattable<U, char>) {
-        throw AssertionFailure{
-            .message = std::format("{} (actual) != {} (expected)", actual, expected),
-            .location = std::move(loc),
-        };
-      } else {
-        throw AssertionFailure{
-            .message = "(actual) != (expected)",
-            .location = std::move(loc),
-        };
-      }
+      throw AssertionFailure{
+          .message = format("{} (actual) != {} (expected)", actual, expected),
+          .location = std::move(loc),
+      };
     }
   }
 
@@ -32,17 +38,10 @@ namespace jtest {
   void assert_ne(const T& actual, const U& expected,
                  std::source_location loc = std::source_location::current()) {
     if (std::equal_to<>{}(actual, expected)) {
-      if constexpr (std::formattable<T, char> && std::formattable<U, char>) {
-        throw AssertionFailure{
-            .message = std::format("{} (actual) == {} (expected)", actual, expected),
-            .location = std::move(loc),
-        };
-      } else {
-        throw AssertionFailure{
-            .message = "(actual) == (expected)",
-            .location = std::move(loc),
-        };
-      }
+      throw AssertionFailure{
+          .message = format("{} (actual) == {} (expected)", actual, expected),
+          .location = std::move(loc),
+      };
     }
   }
 

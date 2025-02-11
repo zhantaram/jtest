@@ -17,9 +17,11 @@ PUBLIC FILE_SET modules TYPE CXX_MODULES FILES
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
 
 #------------------------------------------------------------------------------
-# Library target
-add_executable(example
-  example/main.cpp
-)
-target_link_libraries(example PUBLIC ${PROJECT_NAME})
+# Example target
+if (PROJECT_IS_TOP_LEVEL)
+  add_executable(example
+    example/main.cpp
+  )
+  target_link_libraries(example PUBLIC ${PROJECT_NAME})
+endif()
 

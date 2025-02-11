@@ -20,9 +20,7 @@ namespace jtest {
       std::size_t num_success = 0;
       std::println("Running total of {} tests", sizeof...(test_names));
       std::println("---------------------------------------------------------------");
-      if constexpr (sizeof...(test_names) != 0) {
-        ((num_success += this->run_test<test_names>()), ...);
-      }
+      ((num_success += this->run_test<test_names>()), ...);
       std::println("{} out of {} tests finished successfuly", num_success, sizeof...(test_names));
     }
 
@@ -32,14 +30,14 @@ namespace jtest {
       std::println("Running test \"{}\"", test_name);
       try {
         std::invoke(std::get<Test<test_name>>(tests_));
+        std::println("Test \"{}\" finished successfuly", test_name);
+        std::println("---------------------------------------------------------------");
+        return true;
       } catch (const AssertionFailure& error) {
         std::println("Test \"{}\" failed:\n\t{}", test_name, error.message);
         std::println("---------------------------------------------------------------");
         return false;
       }
-      std::println("Test \"{}\" finished successfuly", test_name);
-      std::println("---------------------------------------------------------------");
-      return true;
     }
 
     std::tuple<Test<test_names>...> tests_ = {};
