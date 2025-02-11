@@ -6,7 +6,7 @@ import std;
 namespace jtest {
 
   template<typename... Ts>
-  std::string format(std::string_view fmt, Ts&&... args) {
+  std::string try_format(std::string_view fmt, Ts&&... args) {
     auto to_format_arg = []<typename T>(T& arg) -> decltype(auto) {
       if constexpr (std::formattable<T, char>) {
         return arg;
@@ -28,7 +28,7 @@ namespace jtest {
                  std::source_location loc = std::source_location::current()) {
     if (!std::equal_to<>{}(actual, expected)) {
       throw AssertionFailure{
-          .message = format("{} (actual) != {} (expected)", actual, expected),
+          .message = try_format("{} (actual) != {} (expected)", actual, expected),
           .location = std::move(loc),
       };
     }
@@ -39,7 +39,7 @@ namespace jtest {
                  std::source_location loc = std::source_location::current()) {
     if (std::equal_to<>{}(actual, expected)) {
       throw AssertionFailure{
-          .message = format("{} (actual) == {} (expected)", actual, expected),
+          .message = try_format("{} (actual) == {} (expected)", actual, expected),
           .location = std::move(loc),
       };
     }
