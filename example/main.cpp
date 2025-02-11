@@ -1,21 +1,42 @@
 import jtest;
 import std;
 
-namespace {
-  static jtest::Suite tests{
-      jtest::Case<"test1">{[] {
-        jtest::assert_eq(2 * 2, 5);
-      }},
-      jtest::Case<"test2">{[] {
-        jtest::assert_ne(2 * 2, 4);
-      }},
-      jtest::Case<"test3">{[] {
-        jtest::assert_eq(2 * 2, 4);
-      }},
+template<>
+struct jtest::Test<"Test1"> {
+  void operator()() {
+    jtest::assert_eq(2 * 2, 4);
+  }
+};
+
+template<>
+struct jtest::Test<"Test2"> {
+  void operator()() {
+    jtest::assert_eq(2 * 2, 5);
+  }
+};
+
+template<>
+struct jtest::Test<"Test3"> {
+  void operator()() {
+    jtest::assert_ne(2 * 2, 5);
+  }
+};
+
+template<>
+struct jtest::Test<"Test4"> {
+  struct NonFormattable {
+    bool operator==(auto&&) const {
+      return false;
+    }
   };
-} // namespace
+
+  void operator()() {
+    jtest::assert_eq(NonFormattable{}, 100);
+  }
+};
 
 int main(int argc, const char* argv[]) {
-  jtest::run_all_tests();
+  jtest::Registry<"Test1", "Test2", "Test3", "Test4"> registry;
+  registry.run_all_tests();
   return 0;
 }

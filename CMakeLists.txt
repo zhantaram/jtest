@@ -11,10 +11,8 @@ add_library(${PROJECT_NAME})
 target_sources(${PROJECT_NAME}
 PUBLIC FILE_SET modules TYPE CXX_MODULES FILES
   src/jtest.cppm
-
   src/utils.cppm
   src/asserts.cppm
-  src/registry.cppm
 )
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_23)
 

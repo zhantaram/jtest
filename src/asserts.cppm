@@ -5,51 +5,43 @@ import std;
 
 namespace jtest {
 
-  class AssertionError : public std::exception {
-  public:
-    AssertionError(std::source_location loc, bool expect_equal)
-        : what_{std::format("Assertion failed in {}:{}\n"
-                            "(actual) {} (expected)",
-                            loc.file_name(), loc.line(), expect_equal ? "!=" : "==")} {
-    }
-
-    template<std::formattable<char> T>
-    AssertionError(std::source_location loc, const T& actual,
-                   const std::type_identity_t<T>& expected, bool expect_equal)
-        : what_{std::format("Assertion failed in {}:{}\n"
-                            "{} (actual) {} {} (expected)",
-                            loc.file_name(), loc.line(), actual,
-                            expect_equal ? "!=" : "==", expected)} {
-    }
-
-    const char* what() const noexcept override {
-      return what_.c_str();
-    }
-
-  private:
-    const std::string what_;
+  struct AssertionFailure {
+    std::string message;
+    std::source_location location;
   };
 
-  export template<typename T>
-  void assert_eq(const T& actual, const std::type_identity_t<T>& expected,
+  export template<typename T, typename U>
+  void assert_eq(const T& actual, const U& expected,
                  std::source_location loc = std::source_location::current()) {
-    if (!std::equal_to<T>{}(actual, expected)) {
-      if constexpr (std::formattable<T, char>) {
-        throw AssertionError{std::move(loc), actual, expected, /*expect_equal=*/true};
+    if (!std::equal_to<>{}(actual, expected)) {
+      if constexpr (std::formattable<T, char> && std::formattable<U, char>) {
+        throw AssertionFailure{
+            .message = std::format("{} (actual) != {} (expected)", actual, expected),
+            .location = std::move(loc),
+        };
       } else {
-        throw AssertionError{std::move(loc), /*expect_equal=*/true};
+        throw AssertionFailure{
+            .message = "(actual) != (expected)",
+            .location = std::move(loc),
+        };
       }
     }
   }
 
-  export template<typename T>
-  void assert_ne(const T& actual, const std::type_identity_t<T>& expected,
+  export template<typename T, typename U>
+  void assert_ne(const T& actual, const U& expected,
                  std::source_location loc = std::source_location::current()) {
-    if (std::equal_to<T>{}(actual, expected)) {
-      if constexpr (std::formattable<T, char>) {
-        throw AssertionError{std::move(loc), actual, expected, /*expect_equal=*/false};
+    if (std::equal_to<>{}(actual, expected)) {
+      if constexpr (std::formattable<T, char> && std::formattable<U, char>) {
+        throw AssertionFailure{
+            .message = std::format("{} (actual) == {} (expected)", actual, expected),
+            .location = std::move(loc),
+        };
       } else {
-        throw AssertionError{std::move(loc), /*expect_equal=*/false};
+        throw AssertionFailure{
+            .message = "(actual) == (expected)",
+            .location = std::move(loc),
+        };
       }
     }
   }
