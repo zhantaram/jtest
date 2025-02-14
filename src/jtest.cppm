@@ -14,7 +14,7 @@ namespace jtest {
 
   export template<MetaString... test_names>
     requires(std::invocable<Test<test_names>> && ...)
-  class Registry {
+  class TestRegistry {
   public:
     void run_all_tests() noexcept {
       std::size_t num_success = 0;
