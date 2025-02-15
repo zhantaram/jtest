@@ -44,4 +44,48 @@ namespace jtest {
     std::tuple<Test<test_names>...> tests_ = {};
   };
 
+  export template<MetaString benchmark_name>
+  struct Benchmark {
+    void operator()();
+  };
+
+  export template<MetaString... benchmark_names>
+    requires(std::invocable<Benchmark<benchmark_names>> && ...)
+  class BenchmarkRegistry {
+  public:
+    static void run_all_benchmarks() noexcept {
+      std::println("Running total of {} benchmarks", sizeof...(benchmark_names));
+      std::println("---------------------------------------------------------------");
+      (run_benchmark<benchmark_names>(), ...);
+      std::println("Ran all benchmarks");
+    }
+
+  private:
+    template<MetaString benchmark_name>
+    static void run_benchmark() noexcept {
+      std::println("Running benchmark \"{}\"", benchmark_name);
+      std::size_t total_iterations = 0;
+      std::chrono::high_resolution_clock::duration total_duration = {};
+      for (std::size_t iterations : {1, 10, 100, 1'000, 10'000, 100'000, 1'000'000, 10'000'000}) {
+        Benchmark<benchmark_name> benchmark{};
+        auto before = std::chrono::high_resolution_clock::now();
+        for (auto _ : std::views::iota(0ul, iterations)) {
+          std::invoke(benchmark);
+        }
+        total_duration += std::chrono::high_resolution_clock::now() - before;
+        total_iterations += iterations;
+        if (total_duration > std::chrono::seconds{3}) {
+          break;
+        }
+      }
+      std::println(
+          "Benchmark \"{}\" did {} iterations with average of {:.3f} ns per iteration",
+          benchmark_name, total_iterations,
+          static_cast<double>(
+              std::chrono::duration_cast<std::chrono::nanoseconds>(total_duration).count()) /
+              total_iterations);
+      std::println("---------------------------------------------------------------");
+    }
+  };
+
 } // namespace jtest
